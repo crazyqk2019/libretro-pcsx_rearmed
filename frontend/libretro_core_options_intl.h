@@ -231,7 +231,7 @@ struct retro_core_option_definition option_defs_chs[] = {
          { "standard",  "标准" },
          { "analog",    "模拟" },
          { "dualshock", "双震动" },
-         { "negcon",    "neGcon" },
+         { "negcon",    "NegCon" },
          { "guncon",    "光枪" },
          { "none",      "无" },
          { NULL, NULL },
@@ -264,8 +264,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_negcon_deadzone",
-      "NegCon Twist Deadzone (Percent)",
-      "Sets the deadzone of the RetroPad left analog stick when simulating the 'twist' action of emulated neGcon Controllers. Used to eliminate drift/unwanted input.",
+      "neGcon 扭转盲区（百分比）",
+      "设置左模拟摇杆模拟'neGcon'输入设备的'扭转'功能时的盲区，用于消除漂移和不期望的输入。",
       {
          { "0",  NULL },
          { "5",  NULL },
@@ -280,31 +280,31 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_negcon_response",
-      "NegCon Twist Response",
-      "Specifies the analog response when using a RetroPad left analog stick to simulate the 'twist' action of emulated neGcon Controllers.",
+      "NegCon 扭转响应",
+      "指定左模拟摇杆模拟'neGcon'输入设备的'扭转'功能时的响应方式。",
       {
-         { "linear",    NULL },
-         { "quadratic", NULL },
-         { "cubic",     NULL },
+         { "linear",    "线性" },
+         { "quadratic", "二次方" },
+         { "cubic",     "三次方" },
          { NULL, NULL },
       },
       "linear",
    },
    {
       "pcsx_rearmed_analog_axis_modifier",
-      "Analog axis bounds.",
-      "Range bounds for analog axis. Square bounds help controllers with highly circular ranges that are unable to fully saturate the x and y axis at 45degree deflections.",
+      "模拟摇杆轴边界",
+      "模拟摇杆轴的边界范围。方形边界有助于圆形范围的手柄输入45度方向。",
       {
-         { "circle", NULL },
-         { "square", NULL },
+         { "circle", "圆形" },
+         { "square", "方形" },
          { NULL, NULL },
       },
       "circle",
    },
    {
       "pcsx_rearmed_vibration",
-      "Enable Vibration",
-      "Enables vibration feedback for controllers that supports vibration features.",
+      "启用震动",
+      "启用手柄的震动反馈功能。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -314,8 +314,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gunconadjustx",
-      "Guncon Adjust X",
-      "When using Guncon mode, you can override aim in emulator if shots misaligned, this applies an increment on the x axis.",
+      "光枪X轴调整",
+      "使用光枪模式时，在X轴上指定一个偏移量，以解决模拟器的瞄准偏移问题。",
       {
          { "0", NULL },
          { "-25", NULL },
@@ -375,8 +375,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gunconadjusty",
-      "Guncon Adjust Y",
-      "When using Guncon mode, you can override aim in emulator if shots misaligned, this applies an increment on the y axis.",
+      "光枪Y轴调整",
+      "使用光枪模式时，在Y轴上指定一个偏移量，以解决模拟器的瞄准偏移问题。",
       {
          { "0", NULL },
          { "-25", NULL },
@@ -436,8 +436,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gunconadjustratiox",
-      "Guncon Adjust Ratio X",
-      "When using Guncon mode, you can override aim in emulator if shots misaligned, this applies a ratio on the x axis.",
+      "光枪X轴调整比例",
+      "使用光枪模式时，在X轴上指定一个调整比例，以解决模拟器的瞄准偏移问题。",
       {
          { "1", NULL },
          { "0.75", NULL },
@@ -497,8 +497,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gunconadjustratioy",
-      "Guncon Adjust Ratio Y",
-      "When using Guncon mode, you can override aim in emulator if shots misaligned, this applies a ratio on the y axis.",
+      "光枪Y轴调整比例",
+      "使用光枪模式时，在Y轴上指定一个调整比例，以解决模拟器的瞄准偏移问题。",
       {
          { "1", NULL },
          { "0.75", NULL },
@@ -558,8 +558,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_dithering",
-      "Enable Dithering",
-      "If Off, disables the dithering pattern the PSX applies to combat color banding.",
+      "启用抖动",
+      "如果关闭，禁用PSX用于消除色彩条块的抖动算法。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -575,8 +575,8 @@ struct retro_core_option_definition option_defs_chs[] = {
 #if defined(LIGHTREC) || defined(NEW_DYNAREC)
    {
       "pcsx_rearmed_drc",
-      "Dynamic Recompiler",
-      "Enables core to use dynamic recompiler or interpreter (slower) CPU instructions.",
+      "动态重编译",
+      "使用动态重编译或者解释器（较慢）CPU内核。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -589,11 +589,11 @@ struct retro_core_option_definition option_defs_chs[] = {
 #ifdef NEW_DYNAREC
    {
       "pcsx_rearmed_psxclock",
-      "PSX CPU Clock",
+      "PSX CPU频率",
 #ifdef HAVE_PRE_ARMV7
-      "Overclock or underclock the PSX clock. Default is 50",
+      "对PSX CPU超频或者降频，缺省是50。",
 #else
-      "Overclock or underclock the PSX clock. Default is 57",
+      "对PSX CPU超频或者降频，缺省是57。",
 #endif
       {
          { "30",  NULL },
@@ -680,8 +680,8 @@ struct retro_core_option_definition option_defs_chs[] = {
 #ifdef GPU_NEON
    {
       "pcsx_rearmed_neon_interlace_enable",
-      "Enable Interlacing Mode",
-      "Enables fake scanlines effect.",
+      "启用隔行模式",
+      "启用伪扫描线效果。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -691,8 +691,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_neon_enhancement_enable",
-      "Enhanced Resolution (Slow)",
-      "Renders in double resolution at the cost of lower performance.",
+      "增强分辨率（较慢）",
+      "以性能为代价以两倍分辨率进行渲染。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -702,8 +702,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_neon_enhancement_no_main",
-      "Enhanced Resolution (Speed Hack)",
-      "Speed hack for Enhanced resolution option (glitches some games).",
+      "增强分辨率（速度增强）",
+      "对增强分辨率进行速度增强修改（有些游戏会图像错误）。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -715,8 +715,8 @@ struct retro_core_option_definition option_defs_chs[] = {
 
    {
       "pcsx_rearmed_duping_enable",
-      "Frame Duping",
-      "A speedup, redraws/reuses the last frame if there was no new data.",
+      "帧欺骗",
+      "提速功能。如果没有新数据，重用上一帧。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -726,8 +726,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_display_internal_fps",
-      "Display Internal FPS",
-      "Shows an on-screen frames per second counter when enabled.",
+      "显示内部FPS",
+      "在OSD信息显示帧率。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -740,8 +740,9 @@ struct retro_core_option_definition option_defs_chs[] = {
 #ifdef GPU_PEOPS
    {
       "pcsx_rearmed_show_gpu_peops_settings",
-      "Advanced GPU P.E.Op.S. Settings",
-      "Shows or hides advanced GPU plugin settings. NOTE: Quick Menu must be toggled for this setting to take effect.",
+      "高级GPU P.E.Op.S.设置",
+      "显示或隐藏高级GPU插件设置。\n"
+	  "注意：必须重新切换快捷菜单以生效。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -751,8 +752,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_peops_odd_even_bit",
-      "(GPU) Odd/Even Bit Hack",
-      "Needed for Chrono Cross.",
+      "(GPU) 奇数/偶数比特位修改",
+      "Chrono Cross游戏需要",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -762,8 +763,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_peops_expand_screen_width",
-      "(GPU) Expand Screen Width",
-      "Capcom fighting games",
+      "(GPU) 扩展屏幕宽度",
+      "用于Capcom飞行游戏",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -773,8 +774,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_peops_ignore_brightness",
-      "(GPU) Ignore Brightness Color",
-      "Black screens in Lunar Silver Star Story games",
+      "(GPU) 忽略亮度色彩",
+      "Lunar Silver Star Story游戏的黑屏功能",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -784,8 +785,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_peops_disable_coord_check",
-      "(GPU) Disable Coordinate Check",
-      "Compatibility mode",
+      "(GPU) 禁用坐标检查",
+      "兼容性模式",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -795,7 +796,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_peops_lazy_screen_update",
-      "(GPU) Lazy Screen Update",
+      "(GPU) 延迟屏幕更新",
       "Pandemonium 2",
       {
          { "disabled", NULL },
@@ -806,8 +807,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_peops_old_frame_skip",
-      "(GPU) Old Frame Skipping",
-      "Skip every second frame",
+      "(GPU) 旧式跳帧",
+      "跳过每个第二帧",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -817,8 +818,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_peops_repeated_triangles",
-      "(GPU) Repeated Flat Tex Triangles",
-      "Needed by Star Wars: Dark Forces",
+      "(GPU) 重复的平面纹理三角形",
+      "星球大战: 黑暗原力游戏需要",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -828,8 +829,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_peops_quads_with_triangles",
-      "(GPU) Draw Quads with Triangles",
-      "Better g-colors, worse textures",
+      "(GPU) 和三角形一起绘制四边形",
+      "更好的g色彩，更差的纹理。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -839,8 +840,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_peops_fake_busy_state",
-      "(GPU) Fake 'Gpu Busy' States",
-      "Toggle busy flags after drawing",
+      "(GPU) 伪'Gpu 忙碌'状态",
+      "绘制后切换忙碌标志",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -854,8 +855,9 @@ struct retro_core_option_definition option_defs_chs[] = {
 #ifdef GPU_UNAI
    {
       "pcsx_rearmed_show_gpu_unai_settings",
-      "Advance GPU UNAI/PCSX4All Settings",
-      "Shows or hides advanced gpu settings. A core restart might be needed for settings to take effect. NOTE: Quick Menu must be toggled for this setting to take effect.",
+      "高级GPU UNAI/PCSX4All设置",
+      "显示或隐藏高级GPU设置，这些设置须要重启内核以生效。\n"
+	  "注意：必须重新切换快捷菜单以生效。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -865,7 +867,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_unai_blending",
-      "(GPU) Enable Blending",
+      "(GPU) 启用混合",
       NULL,
       {
          { "disabled", NULL },
@@ -876,7 +878,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_unai_lighting",
-      "(GPU) Enable Lighting",
+      "(GPU) 启用光照",
       NULL,
       {
          { "disabled", NULL },
@@ -887,7 +889,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_unai_fast_lighting",
-      "(GPU) Enable Fast Lighting",
+      "(GPU) 启用快速光照",
       NULL,
       {
          { "disabled", NULL },
@@ -898,7 +900,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_unai_ilace_force",
-      "(GPU) Enable Forced Interlace",
+      "(GPU) 启用强制隔行",
       NULL,
       {
          { "disabled", NULL },
@@ -909,7 +911,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_unai_pixel_skip",
-      "(GPU) Enable Pixel Skip",
+      "(GPU) 启用像素跳过",
       NULL,
       {
          { "disabled", NULL },
@@ -922,8 +924,8 @@ struct retro_core_option_definition option_defs_chs[] = {
 
    {
       "pcsx_rearmed_show_bios_bootlogo",
-      "Show Bios Bootlogo",
-      "When enabled, shows the PlayStation logo when starting or resetting. (Breaks some games).",
+      "显示BIOS启动标志",
+      "如果启用，在启动或者复位时显示PlayStation标志（破坏有些游戏运行）。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -933,8 +935,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_spu_reverb",
-      "Sound Reverb",
-      "Enables or disables audio reverb effect.",
+      "声音混响",
+      "启用或禁用音频混响效果。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -944,20 +946,20 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_spu_interpolation",
-      "Sound Interpolation",
+      "声音差值",
       NULL,
       {
-         { "simple",   "Simple" },
-         { "gaussian", "Gaussian" },
-         { "cubic",    "Cubic" },
-         { "off",      "disabled" },
+         { "simple",   "简单" },
+         { "gaussian", "高斯" },
+         { "cubic",    "立方" },
+         { "off",      "禁用" },
          { NULL, NULL },
       },
       "simple",
    },
    {
       "pcsx_rearmed_idiablofix",
-      "Diablo Music Fix",
+      "暗黑破坏神音乐修正",
       NULL,
       {
          { "disabled", NULL },
@@ -968,7 +970,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_pe2_fix",
-      "Parasite Eve 2/Vandal Hearts 1/2 Fix",
+      "寄生前夜 2/汪达尔之心 1/2修正",
       NULL,
       {
          { "disabled", NULL },
@@ -979,7 +981,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_inuyasha_fix",
-      "InuYasha Sengoku Battle Fix",
+      "犬夜叉战国之战修正",
       NULL,
       {
          { "disabled", NULL },
@@ -991,11 +993,12 @@ struct retro_core_option_definition option_defs_chs[] = {
 #ifndef _WIN32
    {
       "pcsx_rearmed_async_cd",
-      "CD Access Method (Restart)",
-      "Select method used to read data from content disk images. 'Synchronous' mimics original hardware. 'Asynchronous' can reduce stuttering on devices with slow storage.",
+      "CD访问方式（须重启）",
+      "选择从游戏光盘镜像读取数据的方式。\n"
+      "'同步'模拟原始硬件。'异步'可以减少慢速存储设备的卡顿。\n"
       {
-         { "sync", "Synchronous" },
-         { "async",  "Asynchronous" },
+         { "sync", "同步" },
+         { "async",  "异步" },
          { NULL, NULL},
       },
       "sync",
@@ -1004,7 +1007,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    /* ADVANCED OPTIONS */
    {
       "pcsx_rearmed_noxadecoding",
-      "XA Decoding",
+      "XA解码",
       NULL,
       {
          { "disabled", NULL },
@@ -1015,7 +1018,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_nocdaudio",
-      "CD Audio",
+      "CD音频",
       NULL,
       {
          { "disabled", NULL },
@@ -1026,8 +1029,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_spuirq",
-      "SPU IRQ Always Enabled",
-      "Compatibility tweak, should be left to off in most cases.",
+      "SPU IRQ始终启用",
+      "兼容性调节，大部分情况下应该保持关闭。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -1039,8 +1042,8 @@ struct retro_core_option_definition option_defs_chs[] = {
 #ifdef NEW_DYNAREC
    {
       "pcsx_rearmed_nosmccheck",
-      "(Speed Hack) Disable SMC Checks",
-      "Will cause crashes when loading, break memcards.",
+      "（速度优化）禁用SMC检查",
+      "可能导致载入时崩溃，破坏内存卡。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -1050,8 +1053,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gteregsunneeded",
-      "(Speed Hack) Assume GTE Regs Unneeded",
-      "May cause graphical glitches.",
+      "（速度优化）Assume GTE Regs Unneeded",
+      "可能导致图像错误。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -1061,8 +1064,8 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_nogteflags",
-      "(Speed Hack) Disable GTE Flags",
-      "Will cause graphical glitches.",
+      "（速度优化）禁用GTE标志",
+      "可能导致图像错误。",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
