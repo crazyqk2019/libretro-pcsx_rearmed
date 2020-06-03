@@ -123,13 +123,13 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_pad1type",
-      "手柄 1 类型",
-      "玩家 1 的手柄类型",
+      "手柄1类型",
+      "玩家1的手柄类型",
       {
-         { "standard",  "标准" },
-         { "analog",    "模拟" },
-         { "dualshock", "双震动" },
-         { "negcon",    "neGcon" },
+         { "standard",  "标准手柄" },
+         { "analog",    "模拟手柄" },
+         { "dualshock", "双震动手柄" },
+         { "negcon",    "neGcon手柄" },
          { "guncon",    "光枪" },
          { "none",      "无" },
          { NULL, NULL },
@@ -138,13 +138,13 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_pad2type",
-      "手柄  类型",
-      "玩家 2 的手柄类型",
+      "手柄2类型",
+      "玩家2的手柄类型",
       {
-         { "standard",  "标准" },
-         { "analog",    "模拟" },
-         { "dualshock", "双震动" },
-         { "negcon",    "neGcon" },
+         { "standard",  "标准手柄" },
+         { "analog",    "模拟手柄" },
+         { "dualshock", "双震动手柄" },
+         { "negcon",    "neGcon手柄" },
          { "guncon",    "光枪" },
          { "none",      "无" },
          { NULL, NULL },
@@ -153,13 +153,13 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_pad3type",
-      "手柄 3 类型",
-      "玩家 3 的手柄类型",
+      "手柄3类型",
+      "玩家3的手柄类型",
       {
-         { "standard",  "标准" },
-         { "analog",    "模拟" },
-         { "dualshock", "双震动" },
-         { "negcon",    "neGcon" },
+         { "standard",  "标准手柄" },
+         { "analog",    "模拟手柄" },
+         { "dualshock", "双震动手柄" },
+         { "negcon",    "neGcon手柄" },
          { "guncon",    "光枪" },
          { "none",      "无" },
          { NULL, NULL },
@@ -168,14 +168,14 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_pad4type",
-      "手柄 4 类型",
-      "玩家 4 的手柄类型",
+      "手柄4类型",
+      "玩家4的手柄类型",
       {
-         { "standard",  "标准" },
-         { "analog",    "模拟" },
-         { "dualshock", "双震动" },
-         { "negcon",    "neGcon" },
-         { "guncon",    "光枪" },
+         { "standard",  "标准手柄" },
+         { "analog",    "模拟手柄" },
+         { "dualshock", "双震动手柄" },
+         { "negcon",    "neGcon手柄" },
+         { "guncon",    "光枪手柄" },
          { "none",      "无" },
          { NULL, NULL },
       },
@@ -183,13 +183,13 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_pad5type",
-      "手柄 5 类型",
-      "玩家 5 的手柄类型",
+      "手柄5类型",
+      "玩家5的手柄类型",
       {
-         { "standard",  "标准" },
-         { "analog",    "模拟" },
-         { "dualshock", "双震动" },
-         { "negcon",    "neGcon" },
+         { "standard",  "标准手柄" },
+         { "analog",    "模拟手柄" },
+         { "dualshock", "双震动手柄" },
+         { "negcon",    "neGcon手柄" },
          { "guncon",    "光枪" },
          { "none",      "无" },
          { NULL, NULL },
@@ -197,13 +197,13 @@ struct retro_core_option_definition option_defs_chs[] = {
       "none",
    },{
       "pcsx_rearmed_pad6type",
-      "手柄 6 类型",
-      "玩家 6 的手柄类型",
+      "手柄6类型",
+      "玩家6的手柄类型",
       {
-         { "standard",  "标准" },
-         { "analog",    "模拟" },
-         { "dualshock", "双震动" },
-         { "negcon",    "neGcon" },
+         { "standard",  "标准手柄" },
+         { "analog",    "模拟手柄" },
+         { "dualshock", "双震动手柄" },
+         { "negcon",    "neGcon手柄" },
          { "guncon",    "光枪" },
          { "none",      "无" },
          { NULL, NULL },
@@ -211,13 +211,13 @@ struct retro_core_option_definition option_defs_chs[] = {
       "none",
    },{
       "pcsx_rearmed_pad7type",
-      "手柄 7 类型",
-      "玩家 7 的手柄类型",
+      "手柄7类型",
+      "玩家7的手柄类型",
       {
-         { "standard",  "标准" },
-         { "analog",    "模拟" },
-         { "dualshock", "双震动" },
-         { "negcon",    "neGcon" },
+         { "standard",  "标准手柄" },
+         { "analog",    "模拟手柄" },
+         { "dualshock", "双震动手柄" },
+         { "negcon",    "neGcon手柄" },
          { "guncon",    "光枪" },
          { "none",      "无" },
          { NULL, NULL },
@@ -225,12 +225,12 @@ struct retro_core_option_definition option_defs_chs[] = {
       "none",
    },{
       "pcsx_rearmed_pad8type",
-      "手柄 8 类型",
-      "玩家 8 的手柄类型",
+      "手柄8类型",
+      "玩家8的手柄类型",
       {
-         { "standard",  "标准" },
-         { "analog",    "模拟" },
-         { "dualshock", "双震动" },
+         { "standard",  "标准手柄" },
+         { "analog",    "模拟手柄" },
+         { "dualshock", "双震动手柄" },
          { "negcon",    "NegCon" },
          { "guncon",    "光枪" },
          { "none",      "无" },
@@ -240,7 +240,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_multitap1",
-      "多分插 1",
+      "多分插1",
       "启用/禁用手柄插槽1上的多分插器，可以在支持的游戏中最多允许5个玩家。",
       {
          { "auto",     NULL },
@@ -252,7 +252,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_multitap2",
-      "多分插 2",
+      "多分插2",
       "启用/禁用手柄插槽2上的多分插器，可以在支持的游戏中最多允许8个玩家，多分插1必须启用以实现此功能。",
       {
          { "auto",     "自动" },
@@ -264,7 +264,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_negcon_deadzone",
-      "neGcon 扭转盲区（百分比）",
+      "neGcon扭转盲区（百分比）",
       "设置左模拟摇杆模拟'neGcon'输入设备的'扭转'功能时的盲区，用于消除漂移和不期望的输入。",
       {
          { "0",  NULL },
@@ -280,7 +280,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_negcon_response",
-      "NegCon 扭转响应",
+      "NegCon扭转响应",
       "指定左模拟摇杆模拟'neGcon'输入设备的'扭转'功能时的响应方式。",
       {
          { "linear",    "线性" },
@@ -753,7 +753,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    {
       "pcsx_rearmed_gpu_peops_odd_even_bit",
       "(GPU) 奇数/偶数比特位修改",
-      "Chrono Cross游戏需要",
+      "《穿越时空》游戏需要",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -775,7 +775,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    {
       "pcsx_rearmed_gpu_peops_ignore_brightness",
       "(GPU) 忽略亮度色彩",
-      "Lunar Silver Star Story游戏的黑屏功能",
+      "《露娜：银河之星》游戏的黑屏功能",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -797,7 +797,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    {
       "pcsx_rearmed_gpu_peops_lazy_screen_update",
       "(GPU) 延迟屏幕更新",
-      "Pandemonium 2",
+      "《Pandemonium 2》游戏需要",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -819,7 +819,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    {
       "pcsx_rearmed_gpu_peops_repeated_triangles",
       "(GPU) 重复的平面纹理三角形",
-      "星球大战: 黑暗原力游戏需要",
+      "《星球大战：黑暗原力》游戏需要",
       {
          { "disabled", NULL },
          { "enabled",  NULL },
@@ -840,7 +840,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_gpu_peops_fake_busy_state",
-      "(GPU) 伪'Gpu 忙碌'状态",
+      "(GPU) 伪'GPU忙碌'状态",
       "绘制后切换忙碌标志",
       {
          { "disabled", NULL },
@@ -946,7 +946,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_spu_interpolation",
-      "声音差值",
+      "声音插值算法",
       NULL,
       {
          { "simple",   "简单" },
@@ -959,7 +959,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_idiablofix",
-      "暗黑破坏神音乐修正",
+      "《暗黑破坏神》音乐修正",
       NULL,
       {
          { "disabled", NULL },
@@ -970,7 +970,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_pe2_fix",
-      "寄生前夜 2/汪达尔之心 1/2修正",
+      "《寄生前夜 2》/《汪达尔之心 1/2》修正",
       NULL,
       {
          { "disabled", NULL },
@@ -981,7 +981,7 @@ struct retro_core_option_definition option_defs_chs[] = {
    },
    {
       "pcsx_rearmed_inuyasha_fix",
-      "犬夜叉战国之战修正",
+      "《犬夜叉战国之战》修正",
       NULL,
       {
          { "disabled", NULL },
