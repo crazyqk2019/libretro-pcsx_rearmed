@@ -715,7 +715,7 @@ struct retro_core_option_definition option_defs_chs[] = {
 
    {
       "pcsx_rearmed_duping_enable",
-      "帧欺骗",
+      "帧重用",
       "提速功能。如果没有新数据，重用上一帧。",
       {
          { "disabled", NULL },
