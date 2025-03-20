@@ -1,8 +1,18 @@
-#define select_enhancement_buf_ptr(psx_gpu, x) \
-  ((psx_gpu)->enhancement_buf_ptr + \
-   ((psx_gpu)->enhancement_buf_by_x16[(x) / 16] << 20))
+#if !defined(NEON_BUILD) || defined(SIMD_BUILD)
 
-#ifndef NEON_BUILD
+#ifndef zip_4x32b
+
+#define vector_cast(vec_to, source) source
+
+#define zip_4x32b(dest, source_a, source_b) {                                  \
+  u32 _i; for(_i = 0; _i < 4; _i++) {                                          \
+    (dest).e[_i * 2 + 0] = (source_a).e[_i];                                   \
+    (dest).e[_i * 2 + 1] = (source_b).e[_i];                                   \
+  }                                                                            \
+}
+
+#endif
+
 void setup_sprite_16bpp_4x(psx_gpu_struct *psx_gpu, s32 x, s32 y, s32 u,
  s32 v, s32 width, s32 height, u32 color)
 {
@@ -56,7 +66,8 @@ void setup_sprite_16bpp_4x(psx_gpu_struct *psx_gpu, s32 x, s32 y, s32 u,
       texture_block_ptr =
        texture_page_ptr + (texture_offset_base & texture_mask);
 
-      load_128b(texels, texture_block_ptr);
+      //load_128b(texels, texture_block_ptr);
+      texels = *(vec_8x16u *)texture_block_ptr;
       
       zip_4x32b(vector_cast(vec_4x32u, texels_wide), texels.low, texels.low);
       block->texels = texels_wide;
@@ -117,7 +128,8 @@ void setup_sprite_16bpp_4x(psx_gpu_struct *psx_gpu, s32 x, s32 y, s32 u,
 
       texture_block_ptr = texture_page_ptr + (texture_offset & texture_mask);
       
-      load_128b(texels, texture_block_ptr);
+      //load_128b(texels, texture_block_ptr);
+      texels = *(vec_8x16u *)texture_block_ptr;
 
       zip_4x32b(vector_cast(vec_4x32u, texels_wide), texels.low, texels.low);
       block->texels = texels_wide;
@@ -147,7 +159,8 @@ void setup_sprite_16bpp_4x(psx_gpu_struct *psx_gpu, s32 x, s32 y, s32 u,
       while(blocks_remaining)
       {
         texture_block_ptr = texture_page_ptr + (texture_offset & texture_mask);
-        load_128b(texels, texture_block_ptr);
+        //load_128b(texels, texture_block_ptr);
+        texels = *(vec_8x16u *)texture_block_ptr;
 
         zip_4x32b(vector_cast(vec_4x32u, texels_wide), texels.low, texels.low);
         block->texels = texels_wide;
@@ -178,7 +191,8 @@ void setup_sprite_16bpp_4x(psx_gpu_struct *psx_gpu, s32 x, s32 y, s32 u,
       }
 
       texture_block_ptr = texture_page_ptr + (texture_offset & texture_mask);
-      load_128b(texels, texture_block_ptr);
+      //load_128b(texels, texture_block_ptr);
+      texels = *(vec_8x16u *)texture_block_ptr;
       
       zip_4x32b(vector_cast(vec_4x32u, texels_wide), texels.low, texels.low);
       block->texels = texels_wide;
@@ -215,7 +229,11 @@ void setup_sprite_16bpp_4x(psx_gpu_struct *psx_gpu, s32 x, s32 y, s32 u,
 static void setup_sprite_untextured_4x(psx_gpu_struct *psx_gpu, s32 x, s32 y,
  s32 u, s32 v, s32 width, s32 height, u32 color)
 {
-  setup_sprite_untextured(psx_gpu, x, y, u, v, width * 2, height * 2, color);
+  width *= 2;
+  height *= 2;
+  if (width > 1024)
+    width = 1024;
+  setup_sprite_untextured(psx_gpu, x, y, u, v, width, height, color);
 }
 
 #define setup_sprite_blocks_switch_textured_4x(texture_mode)                   \
@@ -291,7 +309,7 @@ static void setup_sprite_untextured_4x(psx_gpu_struct *psx_gpu, s32 x, s32 y,
   render_sprite_blocks_switch_block_texture_mode_4x(4bpp),                     \
   render_sprite_blocks_switch_block_texture_mode_4x(8bpp),                     \
   render_sprite_blocks_switch_block_texture_mode_4x(16bpp),                    \
-  render_sprite_blocks_switch_block_texture_mode_4x(4bpp)                      \
+  render_sprite_blocks_switch_block_texture_mode_4x(16bpp)                     \
 
 
 render_block_handler_struct render_sprite_block_handlers_4x[] =
@@ -299,12 +317,12 @@ render_block_handler_struct render_sprite_block_handlers_4x[] =
   render_sprite_blocks_switch_block_4x()
 };
 
-
 void render_sprite_4x(psx_gpu_struct *psx_gpu, s32 x, s32 y, u32 u, u32 v,
  s32 width, s32 height, u32 flags, u32 color)
 {
   s32 x_right = x + width - 1;
   s32 y_bottom = y + height - 1;
+  s16 end_x;
 
 #ifdef PROFILE
   sprites++;
@@ -326,8 +344,12 @@ void render_sprite_4x(psx_gpu_struct *psx_gpu, s32 x, s32 y, u32 u, u32 v,
     height -= clip;
   }
 
-  if(x_right > psx_gpu->viewport_end_x)
-    width -= x_right - psx_gpu->viewport_end_x;
+  end_x = psx_gpu->viewport_end_x;
+  if (end_x - psx_gpu->viewport_start_x + 1 > 512)
+    end_x = psx_gpu->viewport_start_x + 511;
+
+  if(x_right > end_x)
+    width -= x_right - end_x;
 
   if(y_bottom > psx_gpu->viewport_end_y)
     height -= y_bottom - psx_gpu->viewport_end_y;
@@ -335,7 +357,9 @@ void render_sprite_4x(psx_gpu_struct *psx_gpu, s32 x, s32 y, u32 u, u32 v,
   if((width <= 0) || (height <= 0))
     return;
 
-  psx_gpu->vram_out_ptr = select_enhancement_buf_ptr(psx_gpu, x);
+  if (!psx_gpu->enhancement_current_buf_ptr)
+    return;
+  psx_gpu->vram_out_ptr = psx_gpu->enhancement_current_buf_ptr;
 
   x *= 2;
   y *= 2;

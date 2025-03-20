@@ -22,6 +22,7 @@
 #ifndef GPU_UNAI_H
 #define GPU_UNAI_H
 
+#include <stdint.h>
 #include "gpu.h"
 
 // Header shared between both standalone gpu_unai (gpu.cpp) and new
@@ -53,26 +54,88 @@
 #define u32 uint32_t
 #define s32 int32_t
 #define s64 int64_t
+#define u64 uint64_t
+
+typedef union {
+	struct {
+		u16 r, g, b;
+	} c;
+	u64 raw;
+} gcol_t;
+
+#ifndef NDEBUG
+
+typedef struct {
+        u32 v;
+} le32_t;
+
+typedef struct {
+        u16 v;
+} le16_t;
+
+#define LExRead(v_) (v_.v)
+
+#else
+
+typedef u32 le32_t;
+typedef u16 le16_t;
+#define LExRead(v) (v)
+
+#endif
+
+static inline u32 le32_to_u32(le32_t le)
+{
+        return LE32TOH(LExRead(le));
+}
+
+static inline s32 le32_to_s32(le32_t le)
+{
+        return (int32_t) LE32TOH(LExRead(le));
+}
+
+static inline u32 le32_raw(le32_t le)
+{
+	return LExRead(le);
+}
+
+static inline le32_t u32_to_le32(u32 u)
+{
+	return (le32_t){ HTOLE32(u) };
+}
+
+static inline u16 le16_to_u16(le16_t le)
+{
+        return LE16TOH(LExRead(le));
+}
+
+static inline s16 le16_to_s16(le16_t le)
+{
+        return (int16_t) LE16TOH(LExRead(le));
+}
+
+static inline u16 le16_raw(le16_t le)
+{
+	return LExRead(le);
+}
+
+static inline le16_t u16_to_le16(u16 u)
+{
+	return (le16_t){ HTOLE16(u) };
+}
 
 union PtrUnion
 {
-	u32  *U4;
-	s32  *S4;
-	u16  *U2;
-	s16  *S2;
+	le32_t  *U4;
+	le16_t  *U2;
 	u8   *U1;
-	s8   *S1;
 	void *ptr;
 };
 
 union GPUPacket
 {
-	u32 U4[16];
-	s32 S4[16];
-	u16 U2[32];
-	s16 S2[32];
+	le32_t U4[16];
+	le16_t U2[32];
 	u8  U1[64];
-	s8  S1[64];
 };
 
 template<class T> static inline void SwapValues(T &x, T &y)
@@ -133,11 +196,62 @@ static inline s32 GPU_DIV(s32 rs, s32 rt)
 // 'Unsafe' version of above that doesn't check for div-by-zero
 #define GPU_FAST_DIV(rs, rt) ((signed)(rs) / (signed)(rt))
 
+// warning: gpu_arm.S asm uses this struct, update the asm if you change this
+struct gpu_unai_inner_t {
+	le16_t* TBA;              // 00 Ptr to current texture in VRAM
+	le16_t* CBA;              // 04 Ptr to current CLUT in VRAM
+
+	// 22.10 Fixed-pt texture coords, mask, scanline advance
+	// NOTE: U,V are no longer packed together into one u32, this proved to be
+	//  too imprecise, leading to pixel dropouts.  Example: NFS3's skybox.
+	u32 u, v;                 // 08 not fractional for sprites
+	u32 u_msk, v_msk;         // 10 always 22.10
+	union {
+	  struct {
+	    s32 u_inc, v_inc;     // 18 poly uv increment, 22.10
+	  };
+	  struct {
+	    s32 y0, y1;           // 18 sprite y range
+	  };
+	};
+
+	// Color for flat-shaded, texture-blended prims
+	u8  r5, g5, b5, pad5;     // 20 5-bit light for undithered prims
+	u8  r8, g8, b8, pad8;     // 24 8-bit light for dithered prims
+
+	// Color for Gouraud-shaded prims
+	// Fixed-pt 8.8 rgb triplet
+	// Packed fixed-pt 8.3:8.3:8.2 rgb triplet
+	//  layout:  ccccccccXXXXXXXX for c in [r, g, b]
+	//           ^ bit 16
+	gcol_t gCol;       // 28
+	gcol_t gInc;       // 30 Increment along scanline for gCol
+
+	// Color for flat-shaded, untextured prims
+	u16 PixelData;     // 38 bgr555 color for untextured flat-shaded polys
+
+	u8 blit_mask;           // Determines what pixels to skip when rendering.
+	                        //  Only useful on low-resolution devices using
+	                        //  a simple pixel-dropping downscaler for PS1
+	                        //  high-res modes. See 'pixel_skip' option.
+
+	u8 ilace_mask;          // Determines what lines to skip when rendering.
+	                        //  Normally 0 when PS1 240 vertical res is in
+	                        //  use and ilace_force is 0. When running in
+	                        //  PS1 480 vertical res on a low-resolution
+	                        //  device (320x240), will usually be set to 1
+	                        //  so odd lines are not rendered. (Unless future
+	                        //  full-screen scaling option is in use ..TODO)
+};
+
 struct gpu_unai_t {
 	u32 GPU_GP1;
 	GPUPacket PacketBuffer;
-	u16 *vram;
+	le16_t *vram;
 
+#ifdef USE_GPULIB
+	le16_t *downscale_vram;
+#endif
 	////////////////////////////////////////////////////////////////////////////
 	// Variables used only by older standalone version of gpu_unai (gpu.cpp)
 #ifndef USE_GPULIB
@@ -161,7 +275,7 @@ struct gpu_unai_t {
 	struct {
 		s32  px,py;
 		s32  x_end,y_end;
-		u16* pvram;
+		le16_t* pvram;
 		u32 *last_dma;     // Last dma pointer
 		bool FrameToRead;  // Load image in progress
 		bool FrameToWrite; // Store image in progress
@@ -194,49 +308,14 @@ struct gpu_unai_t {
 	s16 DrawingOffset[2];  // [0] : Drawing offset X (signed)
 	                       // [1] : Drawing offset Y (signed)
 
-	u16* TBA;              // Ptr to current texture in VRAM
-	u16* CBA;              // Ptr to current CLUT in VRAM
-
 	////////////////////////////////////////////////////////////////////////////
 	//  Inner Loop parameters
 
-	// 22.10 Fixed-pt texture coords, mask, scanline advance
-	// NOTE: U,V are no longer packed together into one u32, this proved to be
-	//  too imprecise, leading to pixel dropouts.  Example: NFS3's skybox.
-	u32 u, v;
-	u32 u_msk, v_msk;
-	s32 u_inc, v_inc;
-
-	// Color for Gouraud-shaded prims
-	// Packed fixed-pt 8.3:8.3:8.2 rgb triplet
-	//  layout:  rrrrrrrrXXXggggggggXXXbbbbbbbbXX
-	//           ^ bit 31                       ^ bit 0
-	u32 gCol;
-	u32 gInc;          // Increment along scanline for gCol
-
-	// Color for flat-shaded, texture-blended prims
-	u8  r5, g5, b5;    // 5-bit light for undithered prims
-	u8  r8, g8, b8;    // 8-bit light for dithered prims
-
-	// Color for flat-shaded, untextured prims
-	u16 PixelData;      // bgr555 color for untextured flat-shaded polys
+	__attribute__((aligned(32)))
+	gpu_unai_inner_t inn;
 
 	// End of inner Loop parameters
 	////////////////////////////////////////////////////////////////////////////
-
-
-	u8 blit_mask;           // Determines what pixels to skip when rendering.
-	                        //  Only useful on low-resolution devices using
-	                        //  a simple pixel-dropping downscaler for PS1
-	                        //  high-res modes. See 'pixel_skip' option.
-
-	u8 ilace_mask;          // Determines what lines to skip when rendering.
-	                        //  Normally 0 when PS1 240 vertical res is in
-	                        //  use and ilace_force is 0. When running in
-	                        //  PS1 480 vertical res on a low-resolution
-	                        //  device (320x240), will usually be set to 1
-	                        //  so odd lines are not rendered. (Unless future
-	                        //  full-screen scaling option is in use ..TODO)
 
 	bool prog_ilace_flag;   // Tracks successive frames for 'prog_ilace' option
 
@@ -252,7 +331,7 @@ struct gpu_unai_t {
 	u32 DitherMatrix[64];   // Matrix of dither coefficients
 };
 
-static gpu_unai_t gpu_unai;
+static __attribute__((aligned(32))) gpu_unai_t gpu_unai;
 
 // Global config that frontend can alter.. Values are read in GPU_init().
 // TODO: if frontend menu modifies a setting, add a function that can notify
@@ -281,13 +360,9 @@ static inline bool DitheringEnabled()
 	return gpu_unai.config.dithering;
 }
 
-// For now, this is just for development/experimentation purposes..
-// If modified to return true, it will allow ignoring the status register
-//  bit 9 setting (dither enable). It will still restrict dithering only
-//  to Gouraud-shaded or texture-blended polys.
 static inline bool ForcedDitheringEnabled()
 {
-	return false;
+	return gpu_unai.config.force_dithering;
 }
 
 static inline bool ProgressiveInterlaceEnabled()
@@ -307,7 +382,7 @@ static inline bool ProgressiveInterlaceEnabled()
 //       running on higher-res device or a resampling downscaler is enabled.
 static inline bool PixelSkipEnabled()
 {
-	return gpu_unai.config.pixel_skip;
+	return gpu_unai.config.pixel_skip || gpu_unai.config.scale_hires;
 }
 
 static inline bool LineSkipEnabled()

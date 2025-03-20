@@ -453,7 +453,7 @@ return 0;
 // some PAD or SPU plugins would not work anymore)
 ////////////////////////////////////////////////////////////////////////
 
-long CALLBACK GPUopen(int hwndGPU)
+long CALLBACK GPUopen(unsigned long *disp, char *cap, char *cfg)
 {
 	 iResX=800;iResY=480;
 	 iColDepth=8;
@@ -2205,9 +2205,8 @@ do
   if(count>0) GPUwriteDataMem(&baseAddrL[dmaMem>>2],count);
   
   addr = baseAddrL[addr>>2]&0xffffff;
- }
-while (addr != 0xffffff);
-
+  } while (!(addr & 0x800000)); // contrary to some documentation, the end-of-linked-list marker is not actually 0xFF'FFFF
+                                  // any pointer with bit 23 set will do.
 GPUIsIdle;
 
 return 0;

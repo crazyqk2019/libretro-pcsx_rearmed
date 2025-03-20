@@ -111,7 +111,7 @@ BOOL           bCheckMask=FALSE;
 int            iUseMask=0;
 int            iSetMask=0;
 unsigned short sSetMask=0;
-unsigned long  lSetMask=0;
+unsigned int   lSetMask=0;
 
 // drawing/coord vars
 
@@ -291,7 +291,7 @@ bool TestEGLError(const char* pszLocation)
 	EGLint iErr = eglGetError();
 	if (iErr != EGL_SUCCESS)
 	{
-		printf("%s failed (0x%x).\n", pszLocation, iErr);
+		printf("%s failed (0x%x).\n", pszLocation, (int)iErr);
 		return FALSE;
 	}
 
@@ -572,7 +572,7 @@ void GLcleanup()
 //              real psx polygon coord mapping right... the following
 //              works not to bad with many games, though
 
-__inline BOOL CheckCoord4()
+static __inline BOOL CheckCoord4()
 {
  if(lx0<0)
   {
@@ -638,7 +638,7 @@ __inline BOOL CheckCoord4()
  return FALSE;
 }
 
-__inline BOOL CheckCoord3()
+static __inline BOOL CheckCoord3()
 {
  if(lx0<0)
   {
@@ -675,7 +675,7 @@ __inline BOOL CheckCoord3()
 }
 
 
-__inline BOOL CheckCoord2()
+static __inline BOOL CheckCoord2()
 {
  if(lx0<0)
   {
@@ -921,14 +921,14 @@ void offsetST(void)
 
 ///////////////////////////////////////////////////////// 
 
-void offsetScreenUpload(long Position)
+void offsetScreenUpload(int Position)
 {
  if(bDisplayNotSet)
   SetOGLDisplaySettings(1);
 
  if(Position==-1)
   {
-   long lmdx,lmdy;
+   int lmdx,lmdy;
 
    lmdx=xrUploadArea.x0;
    lmdy=xrUploadArea.y0;

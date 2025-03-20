@@ -149,7 +149,13 @@
 #define gteBFC (((s32 *)regs->CP2C.r)[23])
 #define gteOFX (((s32 *)regs->CP2C.r)[24])
 #define gteOFY (((s32 *)regs->CP2C.r)[25])
-#define gteH   (regs->CP2C.p[26].sw.l)
+// senquack - gteH register is u16, not s16, and used in GTE that way.
+//  HOWEVER when read back by CPU using CFC2, it will be incorrectly
+//  sign-extended by bug in original hardware, according to Nocash docs
+//  GTE section 'Screen Offset and Distance'. The emulator does this
+//  sign extension when it is loaded to GTE by CTC2.
+//#define gteH   (regs->CP2C.p[26].sw.l)
+#define gteH   (regs->CP2C.p[26].w.l)
 #define gteDQA (regs->CP2C.p[27].sw.l)
 #define gteDQB (((s32 *)regs->CP2C.r)[28])
 #define gteZSF3 (regs->CP2C.p[29].sw.l)
@@ -193,7 +199,7 @@ static inline s32 LIM_(psxCP2Regs *regs, s32 value, s32 max, s32 min, u32 flag) 
 
 static inline u32 limE_(psxCP2Regs *regs, u32 result) {
 	if (result > 0x1ffff) {
-		gteFLAG |= (1 << 31) | (1 << 17);
+		gteFLAG |= (1u << 31) | (1u << 17);
 		return 0x1ffff;
 	}
 	return result;
@@ -227,21 +233,21 @@ static inline u32 limE_(psxCP2Regs *regs, u32 result) {
 #define limE(result) \
 	limE_(regs,result)
 
-#define A1(a) BOUNDS((a), 0x7fffffff, (1 << 30), -(s64)0x80000000, (1 << 31) | (1 << 27))
-#define A2(a) BOUNDS((a), 0x7fffffff, (1 << 29), -(s64)0x80000000, (1 << 31) | (1 << 26))
-#define A3(a) BOUNDS((a), 0x7fffffff, (1 << 28), -(s64)0x80000000, (1 << 31) | (1 << 25))
-#define limB1(a, l) LIM((a), 0x7fff, -0x8000 * !l, (1 << 31) | (1 << 24))
-#define limB2(a, l) LIM((a), 0x7fff, -0x8000 * !l, (1 << 31) | (1 << 23))
-#define limB3(a, l) LIM((a), 0x7fff, -0x8000 * !l, (1 << 22))
-#define limC1(a) LIM((a), 0x00ff, 0x0000, (1 << 21))
-#define limC2(a) LIM((a), 0x00ff, 0x0000, (1 << 20))
-#define limC3(a) LIM((a), 0x00ff, 0x0000, (1 << 19))
-#define limD(a) LIM((a), 0xffff, 0x0000, (1 << 31) | (1 << 18))
+#define A1(a) BOUNDS((a), 0x7fffffff, (1u << 30), -(s64)0x80000000, (1u << 31) | (1u << 27))
+#define A2(a) BOUNDS((a), 0x7fffffff, (1u << 29), -(s64)0x80000000, (1u << 31) | (1u << 26))
+#define A3(a) BOUNDS((a), 0x7fffffff, (1u << 28), -(s64)0x80000000, (1u << 31) | (1u << 25))
+#define limB1(a, l) LIM((a), 0x7fff, -0x8000 * !l, (1u << 31) | (1u << 24))
+#define limB2(a, l) LIM((a), 0x7fff, -0x8000 * !l, (1u << 31) | (1u << 23))
+#define limB3(a, l) LIM((a), 0x7fff, -0x8000 * !l, (1u << 22))
+#define limC1(a) LIM((a), 0x00ff, 0x0000, (1u << 21))
+#define limC2(a) LIM((a), 0x00ff, 0x0000, (1u << 20))
+#define limC3(a) LIM((a), 0x00ff, 0x0000, (1u << 19))
+#define limD(a) LIM((a), 0xffff, 0x0000, (1u << 31) | (1u << 18))
 
-#define F(a) BOUNDS((a), 0x7fffffff, (1 << 31) | (1 << 16), -(s64)0x80000000, (1 << 31) | (1 << 15))
-#define limG1(a) LIM((a), 0x3ff, -0x400, (1 << 31) | (1 << 14))
-#define limG2(a) LIM((a), 0x3ff, -0x400, (1 << 31) | (1 << 13))
-#define limH(a) LIM((a), 0x1000, 0x0000, (1 << 12))
+#define F(a) BOUNDS((a), 0x7fffffff, (1u << 31) | (1u << 16), -(s64)0x80000000, (1u << 31) | (1u << 15))
+#define limG1(a) LIM((a), 0x3ff, -0x400, (1u << 31) | (1u << 14))
+#define limG2(a) LIM((a), 0x3ff, -0x400, (1u << 31) | (1u << 13))
+#define limH(a) LIM((a), 0x1000, 0x0000, (1u << 12))
 
 #ifndef __arm__
 #define A1U A1
@@ -254,12 +260,48 @@ static inline u32 limE_(psxCP2Regs *regs, u32 result) {
 #define A3U(x) (x)
 #endif
 
+
+//senquack - n param should be unsigned (will be 'gteH' reg which is u16)
+#ifdef GTE_USE_NATIVE_DIVIDE
+INLINE u32 DIVIDE(u16 n, u16 d) {
+	if (n < d * 2) {
+		return ((u32)n << 16) / d;
+	}
+	return 0xffffffff;
+}
+#else
 #include "gte_divider.h"
+#endif // GTE_USE_NATIVE_DIVIDE
 
 #ifndef FLAGLESS
 
-u32 MFC2(int reg) {
-	psxCP2Regs *regs = &psxRegs.CP2;
+const unsigned char gte_cycletab[64] = {
+	/*   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
+	 0, 15,  0,  0,  0,  0,  8,  0,  0,  0,  0,  0,  6,  0,  0,  0,
+	 8,  8,  8, 19, 13,  0, 44,  0,  0,  0,  0, 17, 11,  0, 14,  0,
+	30,  0,  0,  0,  0,  0,  0,  0,  5,  8, 17,  0,  0,  5,  6,  0,
+	23,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  5,  5, 39,
+};
+
+// warning: ari64 drc stores it's negative cycles in gteBusyCycle
+static int gteCheckStallRaw(u32 op_cycles, psxRegisters *regs) {
+	u32 left = regs->gteBusyCycle - regs->cycle;
+	int stall = 0;
+
+	if (left <= 44) {
+		//printf("c %2u stall %2u %u\n", op_cycles, left, regs->cycle);
+		regs->cycle = regs->gteBusyCycle;
+		stall = left;
+	}
+	regs->gteBusyCycle = regs->cycle + op_cycles;
+	return stall;
+}
+
+void gteCheckStall(u32 op) {
+	gteCheckStallRaw(gte_cycletab[op], &psxRegs);
+}
+
+u32 MFC2(struct psxCP2Regs *regs, int reg) {
 	switch (reg) {
 		case 1:
 		case 3:
@@ -268,7 +310,7 @@ u32 MFC2(int reg) {
 		case 9:
 		case 10:
 		case 11:
-			psxRegs.CP2D.r[reg] = (s32)psxRegs.CP2D.p[reg].sw.l;
+			regs->CP2D.r[reg] = (s32)regs->CP2D.p[reg].sw.l;
 			break;
 
 		case 7:
@@ -276,25 +318,24 @@ u32 MFC2(int reg) {
 		case 17:
 		case 18:
 		case 19:
-			psxRegs.CP2D.r[reg] = (u32)psxRegs.CP2D.p[reg].w.l;
+			regs->CP2D.r[reg] = (u32)regs->CP2D.p[reg].w.l;
 			break;
 
 		case 15:
-			psxRegs.CP2D.r[reg] = gteSXY2;
+			regs->CP2D.r[reg] = gteSXY2;
 			break;
 
 		case 28:
 		case 29:
-			psxRegs.CP2D.r[reg] = LIM(gteIR1 >> 7, 0x1f, 0, 0) |
+			regs->CP2D.r[reg] = LIM(gteIR1 >> 7, 0x1f, 0, 0) |
 									(LIM(gteIR2 >> 7, 0x1f, 0, 0) << 5) |
 									(LIM(gteIR3 >> 7, 0x1f, 0, 0) << 10);
 			break;
 	}
-	return psxRegs.CP2D.r[reg];
+	return regs->CP2D.r[reg];
 }
 
-void MTC2(u32 value, int reg) {
-	psxCP2Regs *regs = &psxRegs.CP2;
+void MTC2(struct psxCP2Regs *regs, u32 value, int reg) {
 	switch (reg) {
 		case 15:
 			gteSXY0 = gteSXY1;
@@ -305,9 +346,10 @@ void MTC2(u32 value, int reg) {
 
 		case 28:
 			gteIRGB = value;
-			gteIR1 = (value & 0x1f) << 7;
-			gteIR2 = (value & 0x3e0) << 2;
-			gteIR3 = (value & 0x7c00) >> 3;
+			// not gteIR1 etc. just to be consistent with dynarec
+			regs->CP2D.n.ir1 = (value & 0x1f) << 7;
+			regs->CP2D.n.ir2 = (value & 0x3e0) << 2;
+			regs->CP2D.n.ir3 = (value & 0x7c00) >> 3;
 			break;
 
 		case 30:
@@ -318,12 +360,12 @@ void MTC2(u32 value, int reg) {
 				a = gteLZCS;
 				if (a > 0) {
 					int i;
-					for (i = 31; (a & (1 << i)) == 0 && i >= 0; i--);
+					for (i = 31; (a & (1u << i)) == 0 && i >= 0; i--);
 					gteLZCR = 31 - i;
 				} else if (a < 0) {
 					int i;
 					a ^= 0xffffffff;
-					for (i = 31; (a & (1 << i)) == 0 && i >= 0; i--);
+					for (i = 31; (a & (1u << i)) == 0 && i >= 0; i--);
 					gteLZCR = 31 - i;
 				} else {
 					gteLZCR = 32;
@@ -335,11 +377,11 @@ void MTC2(u32 value, int reg) {
 			return;
 
 		default:
-			psxRegs.CP2D.r[reg] = value;
+			regs->CP2D.r[reg] = value;
 	}
 }
 
-void CTC2(u32 value, int reg) {
+void CTC2(struct psxCP2Regs *regs, u32 value, int reg) {
 	switch (reg) {
 		case 4:
 		case 12:
@@ -357,35 +399,7 @@ void CTC2(u32 value, int reg) {
 			break;
 	}
 
-	psxRegs.CP2C.r[reg] = value;
-}
-
-void gteMFC2() {
-	if (!_Rt_) return;
-	psxRegs.GPR.r[_Rt_] = MFC2(_Rd_);
-}
-
-void gteCFC2() {
-	if (!_Rt_) return;
-	psxRegs.GPR.r[_Rt_] = psxRegs.CP2C.r[_Rd_];
-}
-
-void gteMTC2() {
-	MTC2(psxRegs.GPR.r[_Rt_], _Rd_);
-}
-
-void gteCTC2() {
-	CTC2(psxRegs.GPR.r[_Rt_], _Rd_);
-}
-
-#define _oB_ (psxRegs.GPR.r[_Rs_] + _Imm_)
-
-void gteLWC2() {
-	MTC2(psxMemRead32(_oB_), _Rt_);
-}
-
-void gteSWC2() {
-	psxMemWrite32(_oB_, MFC2(_Rt_));
+	regs->CP2C.r[reg] = value;
 }
 
 #endif // FLAGLESS

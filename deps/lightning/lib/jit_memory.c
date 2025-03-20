@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2019  Free Software Foundation, Inc.
+ * Copyright (C) 2013-2023  Free Software Foundation, Inc.
  *
  * This file is part of GNU lightning.
  *
@@ -19,11 +19,6 @@
 
 #include <lightning.h>
 #include <lightning/jit_private.h>
-#ifdef _WIN32
-#  include <mman.h>
-#else
-#  include <sys/mman.h>
-#endif
 
 /*
  * Prototypes

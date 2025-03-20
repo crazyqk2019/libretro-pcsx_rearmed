@@ -5,6 +5,10 @@
 extern "C" {
 #endif
 
+// this can't be __stdcall like it was in PSEmu API as too many functions are mixed up
+#undef CALLBACK
+#define CALLBACK
+
 // header version
 #define _PPDK_HEADER_VERSION		3
 
@@ -137,7 +141,7 @@ typedef struct
   long	PADquery(void);
 
   unsigned char PADstartPoll(int);
-  unsigned char PADpoll(unsigned char);
+  unsigned char PADpoll(unsigned char, int *);
 
 */
 
@@ -196,9 +200,9 @@ typedef struct
 	// controller type - fill it withe predefined values above
 	unsigned char controllerType;
 
-	//0 : no multitap between psx and pad
-	//1 : multitap between psx and pad on port 1
-	//2 : multitap between psx and pad on port 2
+	unsigned char padding;
+	unsigned short saveSize;
+
 	int portMultitap;
 	int requestPadIndex;
 
@@ -213,16 +217,28 @@ typedef struct
 	// values are in range -128 - 127
 	unsigned char moveX, moveY;
 
+	// Lightgun values
+	int absoluteX, absoluteY;
+
 	unsigned char Vib[2];
 	unsigned char VibF[2];
 	
-	//configuration mode Request 0x43
-	int configMode;
-	unsigned char reserved[87];
-	
-	//Lightgun values 
-	int absoluteX,absoluteY;
+	struct {
+		unsigned char configMode;
+		unsigned char padMode; // 0 : digital 1: analog
+		unsigned char cmd4dConfig[6];
+		unsigned int  lastUseFrame;
+		unsigned int  unused;
+		unsigned char configModeUsed;
+		unsigned char autoAnalogTried;
+		unsigned char userToggled;
+		unsigned char padding;
+	} ds;
+	unsigned char multitapLongModeEnabled;
+	unsigned char padding2;
+	unsigned char txData[34];
 
+	unsigned char reserved[22];
 } PadDataS;
 
 /*         NET PlugIn v2       */

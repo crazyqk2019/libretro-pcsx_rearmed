@@ -31,6 +31,17 @@ extern "C" {
 
 #include "config.h"
 
+// XXX: don't care but maybe fix it someday
+#if defined(__GNUC__) && __GNUC__ >= 8
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+// devkitpro has uint32_t as long, unfortunately
+#ifdef _3DS
+#pragma GCC diagnostic ignored "-Wformat"
+#endif
+
 // System includes
 #include <stdio.h>
 #include <string.h>
@@ -101,14 +112,17 @@ extern int Log;
 
 void __Log(char *fmt, ...);
 
+// lots of timing depends on this and makes or breaks compatibility,
+// don't change unless you're going to retest hundreds of games
+#define CYCLE_MULT_DEFAULT 175
+
 typedef struct {
 	char Gpu[MAXPATHLEN];
 	char Spu[MAXPATHLEN];
-	char Cdr[MAXPATHLEN];
 	char Pad1[MAXPATHLEN];
 	char Pad2[MAXPATHLEN];
 	char Net[MAXPATHLEN];
-    char Sio1[MAXPATHLEN];
+	char Sio1[MAXPATHLEN];
 	char Mcd1[MAXPATHLEN];
 	char Mcd2[MAXPATHLEN];
 	char Bios[MAXPATHLEN];
@@ -116,24 +130,34 @@ typedef struct {
 	char PluginsDir[MAXPATHLEN];
 	char PatchesDir[MAXPATHLEN];
 	boolean Xa;
-	boolean Sio;
 	boolean Mdec;
 	boolean PsxAuto;
 	boolean Cdda;
-	boolean AsyncCD;
+	boolean CHD_Precache; /* loads disk image into memory, works with CHD only. */
 	boolean HLE;
 	boolean SlowBoot;
 	boolean Debug;
 	boolean PsxOut;
-	boolean SpuIrq;
-	boolean RCntFix;
 	boolean UseNet;
-	boolean VSyncWA;
+	boolean icache_emulation;
+	boolean DisableStalls;
+	boolean PreciseExceptions;
+	boolean TurboCD;
+	int cycle_multiplier; // 100 for 1.0
+	int cycle_multiplier_override;
+	int gpu_timing_override;
+	s8 GpuListWalking;
+	s8 FractionalFramerate; // ~49.75 and ~59.81 instead of 50 and 60
 	u8 Cpu; // CPU_DYNAREC or CPU_INTERPRETER
 	u8 PsxType; // PSX_TYPE_NTSC or PSX_TYPE_PAL
-#ifdef _WIN32
-	char Lang[256];
-#endif
+	struct {
+		boolean cdr_read_timing;
+		boolean gpu_slow_list_walking;
+		boolean gpu_centering;
+		boolean dualshock_init_analog;
+		boolean fractional_Framerate;
+		boolean f1;
+	} hacks;
 } PcsxConfig;
 
 extern PcsxConfig Config;
@@ -153,10 +177,6 @@ extern struct PcsxSaveFuncs SaveFuncs;
 	if (Mode == 0) SaveFuncs.read(f, ptr, size); \
 }
 
-// Make the timing events trigger faster as we are currently assuming everything
-// takes one cycle, which is not the case on real hardware.
-// FIXME: Count the proper cycle and get rid of this
-#define BIAS	2
 #define PSXCLK	33868800	/* 33.8688 MHz */
 
 enum {

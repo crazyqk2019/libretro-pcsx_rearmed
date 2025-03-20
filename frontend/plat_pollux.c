@@ -309,6 +309,7 @@ static void name(int doffs, const void *vram_, int w, int h, int sstride, int bg
         int i;                                                                          \
                                                                                         \
         vram += psx_offset_y * 1024 + psx_offset_x;                                     \
+        vram = (void *)((long)vram & ~3);                                               \
         for (i = psx_src_height; i > 0; i--, vram += psx_step * 1024, dst += dst_stride)\
                 blitfunc(dst, vram, len);                                               \
 }
@@ -409,13 +410,14 @@ void plat_gvideo_close(void)
 {
 }
 
-static void *pl_emu_mmap(unsigned long addr, size_t size, int is_fixed,
-	enum psxMapTag tag)
+static void *pl_emu_mmap(unsigned long addr, size_t size,
+	enum psxMapTag tag, int *can_retry_addr)
 {
 	unsigned int pbase;
 	void *retval;
 	int ret;
 
+	*can_retry_addr = 1;
 	if (!have_warm)
 		goto basic_map;
 
@@ -473,12 +475,12 @@ static void *pl_emu_mmap(unsigned long addr, size_t size, int is_fixed,
 	}
 
 basic_map:
-	retval = plat_mmap(addr, size, 0, is_fixed);
+	retval = plat_mmap(addr, size, 0, 0);
 
 out:
-	if (tag == MAP_TAG_VRAM)
+	if (tag == MAP_TAG_VRAM && retval)
 		psx_vram = retval;
-	return retval;
+	return retval ? retval : MAP_FAILED;
 }
 
 static void pl_emu_munmap(void *ptr, size_t size, enum psxMapTag tag)
@@ -555,7 +557,7 @@ void plat_init(void)
 	memset(fb_vaddrs[0], 0, FB_VRAM_SIZE);
 
 	pollux_changemode(16, 0);
-	g_menuscreen_w = 320;
+	g_menuscreen_w = g_menuscreen_pp = 320;
 	g_menuscreen_h = 240;
 	g_menuscreen_ptr = fb_flip();
 

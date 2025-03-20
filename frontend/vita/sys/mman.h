@@ -1,12 +1,12 @@
 #ifndef MMAN_H
 #define MMAN_H
 
+#include <stdlib.h>
+//#include <psp2/kernel/sysmem.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "stdlib.h"
-#include "stdio.h"
 
 #define PROT_READ       0b001
 #define PROT_WRITE      0b010
@@ -16,6 +16,7 @@ extern "C" {
 
 #define MAP_FAILED      ((void *)-1)
 
+#if 0 // not used
 static inline void* mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset)
 {
    (void)prot;
@@ -61,6 +62,7 @@ static inline int munmap(void *addr, size_t len)
   return sceKernelFreeMemBlock(uid);
 
 }
+#endif
 
 #ifdef __cplusplus
 };

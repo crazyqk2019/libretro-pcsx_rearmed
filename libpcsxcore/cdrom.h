@@ -34,94 +34,32 @@ extern "C" {
 #define btoi(b)     ((b) / 16 * 10 + (b) % 16) /* BCD to u_char */
 #define itob(i)     ((i) / 10 * 16 + (i) % 10) /* u_char to BCD */
 
-#define MSF2SECT(m, s, f)		(((m) * 60 + (s) - 2) * 75 + (f))
+#define ABS_CD(x) ((x >= 0) ? x : -x)
+#define MIN_VALUE(a,b) ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a < _b ? _a : _b; })
+#define MAX_VALUE(a,b) ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a > _b ? _a : _b; })
 
 #define CD_FRAMESIZE_RAW		2352
 #define DATA_SIZE				(CD_FRAMESIZE_RAW - 12)
 
 #define SUB_FRAMESIZE			96
 
-typedef struct {
-	unsigned char OCUP;
-	unsigned char Reg1Mode;
-	unsigned char Reg2;
-	unsigned char CmdProcess;
-	unsigned char Ctrl;
-	unsigned char Stat;
+#define MSF2SECT(m, s, f)		(((m) * 60 + (s) - 2) * 75 + (f))
 
-	unsigned char StatP;
-
-	unsigned char Transfer[DATA_SIZE];
-	struct {
-		unsigned char Track;
-		unsigned char Index;
-		unsigned char Relative[3];
-		unsigned char Absolute[3];
-	} subq;
-	unsigned char TrackChanged;
-	unsigned char pad1[3];
-	unsigned int  freeze_ver;
-
-	unsigned char Prev[4];
-	unsigned char Param[8];
-	unsigned char Result[16];
-
-	unsigned char ParamC;
-	unsigned char ParamP;
-	unsigned char ResultC;
-	unsigned char ResultP;
-	unsigned char ResultReady;
-	unsigned char Cmd;
-	unsigned char Readed;
-	unsigned char SetlocPending;
-	u32 Reading;
-
-	unsigned char ResultTN[6];
-	unsigned char ResultTD[4];
-	unsigned char SetSectorPlay[4];
-	unsigned char SetSectorEnd[4];
-	unsigned char SetSector[4];
-	unsigned char Track;
-	boolean Play, Muted;
-	int CurTrack;
-	int Mode, File, Channel;
-	int Reset;
-	int RErr;
-	int FirstSector;
-
-	xa_decode_t Xa;
-
-	int Init;
-
-	u16 Irq;
-	u8 IrqRepeated;
-	u32 eCycle;
-
-	u8 Seeked;
-
-	u8 DriveState;
-	u8 FastForward;
-	u8 FastBackward;
-	u8 pad;
-
-	u8 AttenuatorLeftToLeft, AttenuatorLeftToRight;
-	u8 AttenuatorRightToRight, AttenuatorRightToLeft;
-	u8 AttenuatorLeftToLeftT, AttenuatorLeftToRightT;
-	u8 AttenuatorRightToRightT, AttenuatorRightToLeftT;
-} cdrStruct;
-
-extern cdrStruct cdr;
+static inline void lba2msf(unsigned int lba, u8 *m, u8 *s, u8 *f) {
+	*m = lba / 75 / 60;
+	lba = lba - *m * 75 * 60;
+	*s = lba / 75;
+	lba = lba - *s * 75;
+	*f = lba;
+}
 
 void cdrReset();
-void cdrAttenuate(s16 *buf, int samples, int stereo);
 
-void cdrInterrupt();
-void cdrReadInterrupt();
-void cdrRepplayInterrupt();
-void cdrLidSeekInterrupt();
-void cdrPlayInterrupt();
-void cdrDmaInterrupt();
-void LidInterrupt();
+void cdrInterrupt(void);
+void cdrPlayReadInterrupt(void);
+void cdrLidSeekInterrupt(void);
+void cdrDmaInterrupt(void);
+void LidInterrupt(void);
 unsigned char cdrRead0(void);
 unsigned char cdrRead1(void);
 unsigned char cdrRead2(void);
